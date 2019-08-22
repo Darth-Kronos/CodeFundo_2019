@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, flash, redirect,request
+from flask import Flask, render_template, url_for, flash, redirect,request, session, escape
 from adal import AuthenticationContext
 from forms import LoginForm, VoterForm
 import mysql.connector
@@ -12,18 +12,8 @@ CLIENT_SECRET = 'tZ:FVbBdsHoasBoPay4*[C+Avw7eRy11'# KEY
 Voter_ID_hash=''
 auth_context = AuthenticationContext(AUTHORITY)
 contracts={}
-Username = ''
-
-SESSION = requests.Session()
-token = auth_context.acquire_token_with_client_credentials(RESOURCE, CLIENT_APP_Id, CLIENT_SECRET)
-SESSION.headers.update({'Authorization': 'Bearer ' + token['accessToken']})
-x = SESSION.get(WORKBENCH_API_URL+ 'api/v2/contracts?workflowId=6').json()
-for i in x['contracts']:
-    for value in i["contractProperties"]:
-        if value["workflowPropertyId"] == 17:
-            contracts.__setitem__(value["value"], i['id'])
-
-cnx = mysql.connector.connect(user="stallions@stallions", password='Qwerty12345.', host="stallions.mysql.database.azure.com", port=3306, database='sample', ssl_ca='BaltimoreCyberTrustRoot.pem', ssl_verify_cert=True)
+SESSION = ''
+cnx = mysql.connector.connect(user="stallions@stallions", password='Qwerty12345.', host="stallions.mysql.database.azure.com", port=3306, database='sample', ssl_ca='C:\\Users\\Shreeram\\Documents\\GitHub\\test\\BaltimoreCyberTrustRoot.pem', ssl_verify_cert=True)
 mycursor = cnx.cursor()
 mycursor.execute('select off_email from official')
 val = mycursor.fetchall()
@@ -44,8 +34,9 @@ def login():
     form = LoginForm()        
     if form.validate_on_submit():
         if form.Username.data in official_values and form.password.data == form.Username.data:
-            global Username
-            Username = form.Username.data
+            #global Username
+            #Username = form.Username.data
+            session['Username'] = form.Username.data
             return redirect(url_for('process'))
         else:
             flash('Login Unsuccessful. Please check username and password', 'danger')
@@ -59,7 +50,7 @@ def contact_admin():
 
 @app.route("/process", methods=['GET', 'POST'])
 def process():
-    global Username
+    Username = escape(session['Username'])
     global Voter_ID_hash
     mycursor.execute('select cit_voterid from login where loff_email=\'{}\''.format(Username))
     temp = mycursor.fetchall()
@@ -77,7 +68,7 @@ def process():
 
 @app.route("/Voter_info", methods=['GET', 'POST'])
 def Voter_info():
-    global Username
+    Username = escape(session['Username'])
     global Voter_ID_hash
     poll_data = {}
     mycursor.execute('select cit_voterid from login where loff_email=\'{}\''.format(Username))
@@ -99,7 +90,7 @@ def Voter_info():
 
 @app.route('/poll')
 def poll():
-    global Username
+    Username = escape(session['Username'])
     global Voter_ID_hash
     vote = request.args.get('field')
     mycursor.execute('select unique_id from candidates where candidate_name=\'{}\''.format(vote))

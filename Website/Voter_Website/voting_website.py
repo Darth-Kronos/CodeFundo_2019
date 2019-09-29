@@ -4,16 +4,21 @@ from forms import LoginForm, VoterForm
 import mysql.connector
 import requests
 import json
-AUTHORITY = 'https://login.microsoftonline.com/8fb1f5b2-a2b4-409c-bcd6-21a3f3aad0d6'
-WORKBENCH_API_URL = 'https://blockchain-voiqlc-api.azurewebsites.net/'
-RESOURCE = '27c00335-188f-4c3f-a47c-4c825bf4f12c'
-CLIENT_APP_Id = '2a525ae3-8712-4273-9ee9-9318d92028b6' # service ID
-CLIENT_SECRET = 'tZ:FVbBdsHoasBoPay4*[C+Avw7eRy11'# KEY
+
+
+AUTHORITY = ""
+WORKBENCH_API_URL = ""
+RESOURCE = ""
+CLIENT_APP_Id = "" # service ID
+CLIENT_SECRET = ""# KEY
+
 Voter_ID_hash=''
 auth_context = AuthenticationContext(AUTHORITY)
 contracts={}
+
 SESSION = ''
-cnx = mysql.connector.connect(user="stallions@stallions", password='Qwerty12345.', host="stallions.mysql.database.azure.com", port=3306, database='sample', ssl_ca='C:\\Users\\Shreeram\\Documents\\GitHub\\test\\BaltimoreCyberTrustRoot.pem', ssl_verify_cert=True)
+
+cnx = mysql.connector.connect("") # connect to your database
 mycursor = cnx.cursor()
 mycursor.execute('select off_email from official')
 val = mycursor.fetchall()
@@ -23,7 +28,7 @@ if(val):
         official_values.append(c[0])
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
+#app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
 
 @app.route("/")
 def home():
@@ -34,8 +39,6 @@ def login():
     form = LoginForm()        
     if form.validate_on_submit():
         if form.Username.data in official_values and form.password.data == form.Username.data:
-            #global Username
-            #Username = form.Username.data
             session['Username'] = form.Username.data
             return redirect(url_for('process'))
         else:
@@ -45,7 +48,6 @@ def login():
 
 @app.route("/contact_admin", methods=['GET', 'POST'])
 def contact_admin():
-    global Username
     return render_template('Contact_admin.html', title="Voting")
 
 @app.route("/process", methods=['GET', 'POST'])

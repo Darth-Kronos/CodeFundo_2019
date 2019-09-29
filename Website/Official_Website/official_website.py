@@ -11,12 +11,12 @@ import json
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
-
-AUTHORITY = 'https://login.microsoftonline.com/8fb1f5b2-a2b4-409c-bcd6-21a3f3aad0d6'
-WORKBENCH_API_URL = 'https://blockchain-voiqlc-api.azurewebsites.net/'
-RESOURCE = '27c00335-188f-4c3f-a47c-4c825bf4f12c'
-CLIENT_APP_Id = '2a525ae3-8712-4273-9ee9-9318d92028b6' # service ID
-CLIENT_SECRET = 'tZ:FVbBdsHoasBoPay4*[C+Avw7eRy11'# KEY
+# microsoft account details
+AUTHORITY = "" 
+WORKBENCH_API_URL = ""
+RESOURCE = ""
+CLIENT_APP_Id = "" # service ID
+CLIENT_SECRET = "" # KEY
 
 auth_context = AuthenticationContext(AUTHORITY)
 
@@ -24,13 +24,13 @@ SESSION = requests.Session()
 token = auth_context.acquire_token_with_client_credentials(RESOURCE, CLIENT_APP_Id, CLIENT_SECRET)
 SESSION.headers.update({'Authorization': 'Bearer ' + token['accessToken']})
 contracts = {}
-x = SESSION.get(WORKBENCH_API_URL+ 'api/v2/contracts?workflowId=5').json()
+x = SESSION.get(WORKBENCH_API_URL+ 'api/v2/contracts?workflowId=5').json()  # "workflowId" specific to Azure Workbench Application
 for i in x['contracts']:
     for value in i["contractActions"]:
         if value["workflowFunctionId"] == 15:
             contracts.__setitem__(value["parameters"][0]["value"], i['id'])
 
-cnx = mysql.connector.connect(user="stallions@stallions", password='Qwerty12345.', host="stallions.mysql.database.azure.com", port=3306, database='sample', ssl_ca='C:\\Users\\Shreeram\\Documents\\GitHub\\test\\BaltimoreCyberTrustRoot.pem', ssl_verify_cert=True)
+cnx = mysql.connector.connect() #connect to your database
 mycursor = cnx.cursor()
 mycursor.execute('select voter_id from voter')
 valid_voters = []
@@ -57,8 +57,6 @@ def login():
         if(form.Username.data == 'admin@admin.com'):
             return redirect(url_for('result'))
         if form.Username.data in official_values and form.password.data == form.Username.data:
-            #global Username 
-            #Username = form.Username.data
             session['Username'] = form.Username.data
             return redirect(url_for('vote'))
         else:
@@ -145,40 +143,3 @@ if __name__ == '__main__':
             if value["workflowFunctionId"] == 15:
                 contracts.__setitem__(value["parameters"][0]["value"], i['id'])
     app.run(debug=True,port=5001)
-
-
-"""
-from flask import Flask, session, redirect, url_for, escape, request
-
-app = Flask(__name__)
-
-# Set the secret key to some random bytes. Keep this really secret!
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
-
-@app.route('/')
-def index():
-    if 'username' in session:
-        return 'Logged in as %s' % escape(session['username'])
-    return 'You are not logged in'
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-   if request.method == 'POST':
-        session['username'] = request.form['username']
-        return redirect(url_for('index'))
-   return '''
-        <form method="post">
-            <p><input type=text name=username>
-            <p><input type=submit value=Login>
-        </form>
-    '''
-
-@app.route('/logout')
-def logout():
-    # remove the username from the session if it's there
-    session.pop('username', None)
-    return redirect(url_for('index'))
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
-"""

@@ -1,1 +1,1 @@
-gunicorn --bind=0.0.0.0 --workers=4 --chdir Website/Blog blog:app
+gunicorn --bind=0.0.0.0 --workers=4 --chdir Website/Official_Website official_website:app

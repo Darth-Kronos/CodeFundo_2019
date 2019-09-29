@@ -1,1 +1,1 @@
-gunicorn --bind=0.0.0.0 --workers=4 --chdir Website/Voting_process voting_process:app
+gunicorn --bind=0.0.0.0 --workers=4 --chdir Website/Voter_Website voting_website:app
